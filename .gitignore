@@ -1,0 +1,12 @@
+target/
+.m2/
+.idea/
+.vscode/
+*.iml
+*.log
+.env
+data/
+.github/modernize/
+resume_updated.*
+docs/
+AGENTS.md

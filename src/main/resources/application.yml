@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: distributed-job-platform
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/job_platform}
+    username: ${DATABASE_USERNAME:job_platform}
+    password: ${DATABASE_PASSWORD:job_platform}
+    hikari:
+      maximum-pool-size: ${DATABASE_POOL_SIZE:12}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotence: true
+        delivery.timeout.ms: 30000
+    consumer:
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      ack-mode: manual_immediate
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  tomcat:
+    max-http-form-post-size: 1MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+app:
+  outbox:
+    dispatcher-enabled: ${OUTBOX_DISPATCHER_ENABLED:false}
+    topic: ${JOB_TOPIC:job.work-available.v1}
+    batch-size: 25
+    claim-seconds: 30
+    fixed-delay-ms: 500
+    send-timeout-seconds: 10
+  worker:
+    enabled: ${WORKER_ENABLED:false}
+    id: ${WORKER_ID:}
+    group-id: ${WORKER_GROUP_ID:job-workers-v1}
+    lease-seconds: ${WORKER_LEASE_SECONDS:30}
+    renewal-interval-ms: ${WORKER_RENEWAL_INTERVAL_MS:10000}
+    heartbeat-interval-ms: ${WORKER_HEARTBEAT_INTERVAL_MS:5000}
+    liveness-timeout-seconds: ${WORKER_LIVENESS_TIMEOUT_SECONDS:20}
+  retry:
+    maintenance-enabled: ${RETRY_MAINTENANCE_ENABLED:false}
+    maintenance-delay-ms: ${RETRY_MAINTENANCE_DELAY_MS:1000}
+    maintenance-batch-size: 25
+    initial-delay-ms: 1000
+    max-delay-ms: 60000
+    jitter-factor: 0.2
+  scheduling:
+    maintenance-enabled: ${SCHEDULING_MAINTENANCE_ENABLED:false}
+    maintenance-delay-ms: ${SCHEDULING_MAINTENANCE_DELAY_MS:1000}
+    batch-size: 25
+    priority-aging-seconds: 60
+  observability:
+    sampling-delay-ms: ${OBSERVABILITY_SAMPLING_DELAY_MS:10000}
+    stuck-job-seconds: ${OBSERVABILITY_STUCK_JOB_SECONDS:300}

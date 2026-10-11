@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    show-sql: false
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+app:
+  outbox:
+    dispatcher-enabled: false
+
+logging:
+  level:
+    org.testcontainers: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: OFF
